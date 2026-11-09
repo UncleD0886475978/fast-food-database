@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fast-food-mongodb-data
+  namespace: quickbite
+  labels:
+    app: fast-food-mongodb
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 10Gi
+  # storageClassName: ""   # uncomment / set to your cluster's class if needed

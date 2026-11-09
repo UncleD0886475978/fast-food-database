@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fast-food-mongodb
+  namespace: quickbite
+  labels:
+    app: fast-food-mongodb
+spec:
+  serviceName: fast-food-mongodb-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fast-food-mongodb
+  template:
+    metadata:
+      labels:
+        app: fast-food-mongodb
+    spec:
+      containers:
+        - name: db
+          image: mongo:7
+          ports:
+            - containerPort: 27017
+          envFrom:
+          - secretRef:
+              name: fast-food-mongodb
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          readinessProbe:
+            exec:
+              command: ["mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fast-food-mongodb-data

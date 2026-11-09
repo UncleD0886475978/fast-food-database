@@ -1,0 +1,20 @@
+services:
+  db:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-quickbite}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-quickbite_change_me}
+      MONGO_INITDB_DATABASE: ${DB_NAME:-quickbite}
+    ports:
+      - "${DB_PORT:-27017}:27017"
+    volumes:
+      - quickbite_mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  quickbite_mongodb_data:
